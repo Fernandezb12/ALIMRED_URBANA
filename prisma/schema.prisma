@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DONANTE
+  ORGANIZACION
+}
+
+enum DonationStatus {
+  DISPONIBLE
+  ASIGNADA
+  ENTREGADA
+}
+
+enum RequestStatus {
+  PENDIENTE
+  PRIORIZADA
+  ATENDIDA
+  CERRADA
+}
+
+enum Priority {
+  ALTA
+  MEDIA
+  BAJA
+}
+
+enum Urgency {
+  ALTA
+  MEDIA
+  BAJA
+}
+
+enum MapPointType {
+  DONACION
+  SOLICITUD
+  ENTREGA
+  ORGANIZACION
+}
+
+model User {
+  id               Int                @id @default(autoincrement())
+  name             String
+  email            String             @unique
+  passwordHash     String
+  role             Role
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  organizationInfo OrganizationProfile?
+  donations        Donation[]         @relation("DonationDonor")
+  requests         Request[]          @relation("RequestOrganization")
+  assignedCases    Assignment[]       @relation("AssignmentAdmin")
+  activityLogs     ActivityLog[]
+  sessions         Session[]
+}
+
+model OrganizationProfile {
+  id          Int    @id @default(autoincrement())
+  userId      Int    @unique
+  district    String
+  contactName String
+  phone       String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Donation {
+  id          Int            @id @default(autoincrement())
+  resourceType String
+  description String
+  quantity    Int
+  status      DonationStatus @default(DISPONIBLE)
+  notes       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  donorId     Int
+  donor       User           @relation("DonationDonor", fields: [donorId], references: [id], onDelete: Restrict)
+  assignments Assignment[]
+}
+
+model Request {
+  id             Int           @id @default(autoincrement())
+  description    String
+  quantity       Int
+  urgency        Urgency
+  priority       Priority      @default(MEDIA)
+  location       String
+  status         RequestStatus @default(PENDIENTE)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organizationId Int
+  organization   User          @relation("RequestOrganization", fields: [organizationId], references: [id], onDelete: Restrict)
+  assignments    Assignment[]
+}
+
+model Assignment {
+  id           Int      @id @default(autoincrement())
+  donationId   Int
+  requestId    Int
+  assignedById Int
+  notes        String?
+  createdAt    DateTime @default(now())
+  donation     Donation @relation(fields: [donationId], references: [id], onDelete: Restrict)
+  request      Request  @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  assignedBy   User     @relation("AssignmentAdmin", fields: [assignedById], references: [id], onDelete: Restrict)
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String
+  detail    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model MapPoint {
+  id          Int          @id @default(autoincrement())
+  name        String
+  type        MapPointType
+  address     String
+  status      String
+  description String
+  lat         Float
+  lng         Float
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+}
