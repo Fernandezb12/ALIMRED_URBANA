@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const rutasProtegidas = ["/panel", "/dashboard", "/donaciones", "/solicitudes", "/asignaciones", "/historial", "/mapa", "/perfil"];
+const rutasProtegidas = ["/dashboard", "/donaciones", "/solicitudes", "/asignaciones", "/historial", "/perfil"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("alimred_sesion")?.value;
@@ -15,5 +15,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/panel/:path*", "/dashboard/:path*", "/donaciones/:path*", "/solicitudes/:path*", "/asignaciones/:path*", "/historial/:path*", "/mapa/:path*", "/perfil/:path*"]
+  matcher: ["/dashboard/:path*", "/donaciones/:path*", "/solicitudes/:path*", "/asignaciones/:path*", "/historial/:path*", "/perfil/:path*"]
 };

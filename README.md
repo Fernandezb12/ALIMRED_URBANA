@@ -1,20 +1,14 @@
 # AlimRed Urbana
 
-Plataforma web para coordinar donaciones, solicitudes, asignaciones y trazabilidad de ayuda alimentaria urbana, con prioridad sugerida automática y evidencia de entrega.
+Aplicación web para coordinar **donaciones**, **solicitudes de ayuda** y **asignaciones** con trazabilidad completa en zonas urbanas.
 
 ## Stack
-- Next.js (App Router) + TypeScript
+- Next.js 15 (App Router) + TypeScript
 - Tailwind CSS + componentes estilo shadcn/ui
-- Prisma ORM + SQLite
-- Lucide Icons + Recharts
-- next-themes (claro/oscuro)
-- Leaflet + OpenStreetMap (mapa de Neiva)
-- Motor de reglas para prioridad sugerida + evidencia de entrega
-
-## Roles y permisos
-- **ADMIN:** `/panel`, `/donaciones`, `/solicitudes`, `/asignaciones`, `/historial`, `/mapa`, `/perfil`
-- **DONANTE:** `/panel`, `/donaciones`, `/mapa`, `/perfil`
-- **ORGANIZACION:** `/panel`, `/solicitudes`, `/mapa`, `/perfil`
+- Prisma ORM + SQLite local
+- Lucide Icons
+- Recharts
+- next-themes (modo claro/oscuro)
 
 ## Instalación rápida
 ```bash
@@ -25,7 +19,7 @@ npm run db:seed
 npm run dev
 ```
 
-## Scripts
+## Scripts útiles
 ```bash
 npm run dev
 npm run build
@@ -39,3 +33,13 @@ npm run db:reset
 - `admin@alimred.local / Admin123*`
 - `donante@alimred.local / Donante123*`
 - `organizacion@alimred.local / Organizacion123*`
+
+## Estructura base
+- `app/` rutas y vistas (landing, login, paneles)
+- `components/` UI, layout y widgets de dashboard
+- `lib/` auth, prisma, utilidades, prioridad
+- `prisma/` schema + seed
+- `docs/` arquitectura, flujos y modelo de datos
+
+## Capturas
+Pendiente: agregar capturas de demo (`/docs/screenshots`).

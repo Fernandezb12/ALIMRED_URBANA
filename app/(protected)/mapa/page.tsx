@@ -6,7 +6,7 @@ import { MapaShell } from "@/components/mapa/mapa-shell";
 export default async function MapaPage() {
   await requireUser();
 
-  const puntos = await (prisma as any).mapPoint.findMany({
+  const puntos = await prisma.mapPoint.findMany({
     where: { isActive: true },
     orderBy: { createdAt: "desc" }
   });
