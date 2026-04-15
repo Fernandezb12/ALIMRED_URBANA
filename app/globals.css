@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fondo: 0 0% 97%;
+  --texto: 220 12% 14%;
+  --panel: 0 0% 100%;
+  --borde: 220 13% 88%;
+  --vino: 349 63% 34%;
+  --vino-foreground: 0 0% 100%;
+  --exito: 140 48% 40%;
+  --alerta: 26 88% 49%;
+  --info: 212 81% 50%;
+}
+
+.dark {
+  --fondo: 220 13% 11%;
+  --texto: 0 0% 94%;
+  --panel: 222 14% 16%;
+  --borde: 220 13% 28%;
+  --vino: 349 66% 43%;
+  --vino-foreground: 0 0% 100%;
+  --exito: 142 59% 45%;
+  --alerta: 30 88% 56%;
+  --info: 213 94% 58%;
+}
+
+* {
+  @apply border-borde;
+}
+
+body {
+  @apply bg-fondo text-texto antialiased;
+}
+
+.gradiente-hero {
+  background: radial-gradient(circle at 10% 20%, rgba(125, 27, 48, 0.16), transparent 38%),
+    radial-gradient(circle at 90% 80%, rgba(53, 65, 81, 0.2), transparent 40%);
+}
