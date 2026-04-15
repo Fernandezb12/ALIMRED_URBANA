@@ -3,7 +3,6 @@ import { ArrowRight, HandHeart, ShieldCheck, Sparkles, Workflow } from "lucide-r
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TypewriterHero } from "@/components/typewriter-hero";
 
 const beneficios = [
   { icono: HandHeart, titulo: "Canaliza donaciones reales", texto: "Convierte oferta dispersa en ayuda útil y trazable." },
@@ -30,18 +29,7 @@ export default function LandingPage() {
             <Sparkles className="h-3.5 w-3.5" /> Prototipo social para hackathon
           </span>
           <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
-            Red inteligente para{" "}
-            <span className="text-vino">
-              <TypewriterHero
-                frases={[
-                  "combatir hambre urbana",
-                  "coordinar donaciones reales",
-                  "priorizar ayudas urgentes",
-                  "conectar apoyo social"
-                ]}
-              />
-            </span>{" "}
-            con datos y acción.
+            Red inteligente para <span className="text-vino">combatir hambre urbana</span> con datos y acción.
           </h1>
           <p className="max-w-xl text-texto/75">
             AlimRed Urbana coordina donantes, organizaciones y equipos de gestión para reducir tiempos de atención y mejorar el impacto.

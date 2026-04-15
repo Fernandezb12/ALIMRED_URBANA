@@ -1,4 +1,4 @@
-import { ROLES } from "@/lib/domain";
+import { Role } from "@prisma/client";
 import { actualizarDonacionAction, crearDonacionAction } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,9 @@ import { fechaBonita } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 
 export default async function DonacionesPage() {
-  const user = await requireRole([ROLES.DONANTE, ROLES.ADMIN]);
+  const user = await requireRole([Role.DONANTE, Role.ADMIN]);
   const donaciones = await prisma.donation.findMany({
-    where: user.role === ROLES.ADMIN ? {} : { donorId: user.id },
+    where: user.role === Role.ADMIN ? {} : { donorId: user.id },
     include: { donor: true },
     orderBy: { createdAt: "desc" }
   });
@@ -45,7 +45,7 @@ export default async function DonacionesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {donaciones.map((d: any) => (
+                {donaciones.map((d) => (
                   <TableRow key={d.id}>
                     <TableCell>{d.resourceType}<div className="text-xs text-texto/70">{d.description}</div></TableCell>
                     <TableCell>{d.quantity}</TableCell>

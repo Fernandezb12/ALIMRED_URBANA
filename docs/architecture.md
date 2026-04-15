@@ -1,7 +1,9 @@
 # Arquitectura
 
-- Next.js App Router con rutas por grupos `(auth)` y `(protected)`.
-- Segmentación fuerte por rol en UI, rutas y acciones de servidor.
-- Autenticación local por cookie + tabla `Session`.
-- Persistencia con Prisma + SQLite.
-- Mapa interactivo con Leaflet/OpenStreetMap sin API keys.
+AlimRed Urbana usa una arquitectura fullstack en Next.js App Router:
+
+- **UI Server Components** para listar datos y construir dashboards.
+- **Server Actions** para crear/editar donaciones, solicitudes, prioridad, asignaciones y perfil.
+- **Autenticación interna** por cookie httpOnly + tabla `Session`.
+- **Control por rol** (`ADMIN`, `DONANTE`, `ORGANIZACION`) desde `lib/auth.ts`.
+- **Prisma + SQLite** para persistencia local y demo sin servicios externos.

@@ -38,13 +38,6 @@ enum Urgency {
   BAJA
 }
 
-enum MapPointType {
-  DONACION
-  SOLICITUD
-  ENTREGA
-  ORGANIZACION
-}
-
 model User {
   id               Int                @id @default(autoincrement())
   name             String
@@ -89,14 +82,9 @@ model Request {
   description    String
   quantity       Int
   urgency        Urgency
-  priority           Priority      @default(MEDIA)
-  suggestedPriority  Priority      @default(MEDIA)
-  suggestedReason    String        @default("Regla base")
-  vulnerableGroup    Boolean       @default(false)
-  needType           String        @default("GENERAL")
-  unattendedHours    Int           @default(0)
-  location           String
-  status             RequestStatus @default(PENDIENTE)
+  priority       Priority      @default(MEDIA)
+  location       String
+  status         RequestStatus @default(PENDIENTE)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   organizationId Int
@@ -109,13 +97,8 @@ model Assignment {
   donationId   Int
   requestId    Int
   assignedById Int
-  notes            String?
-  recipientName    String?
-  deliveredAt      DateTime?
-  deliveryNotes    String?
-  evidenceRef      String?
-  deliveryConfirmed Boolean @default(false)
-  createdAt        DateTime @default(now())
+  notes        String?
+  createdAt    DateTime @default(now())
   donation     Donation @relation(fields: [donationId], references: [id], onDelete: Restrict)
   request      Request  @relation(fields: [requestId], references: [id], onDelete: Restrict)
   assignedBy   User     @relation("AssignmentAdmin", fields: [assignedById], references: [id], onDelete: Restrict)
@@ -137,18 +120,4 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-
-model MapPoint {
-  id          Int          @id @default(autoincrement())
-  name        String
-  type        MapPointType
-  address     String
-  status      String
-  description String
-  lat         Float
-  lng         Float
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
 }
