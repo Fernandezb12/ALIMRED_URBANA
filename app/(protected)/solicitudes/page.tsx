@@ -1,4 +1,4 @@
-import { ROLES } from "@/lib/domain";
+import { Role } from "@prisma/client";
 import { actualizarSolicitudAction, crearSolicitudAction, priorizarSolicitudAction } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,9 @@ import { fechaBonita } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 
 export default async function SolicitudesPage() {
-  const user = await requireRole([ROLES.ORGANIZACION, ROLES.ADMIN]);
+  const user = await requireRole([Role.ORGANIZACION, Role.ADMIN]);
   const solicitudes = await prisma.request.findMany({
-    where: user.role === ROLES.ADMIN ? {} : { organizationId: user.id },
+    where: user.role === Role.ADMIN ? {} : { organizationId: user.id },
     include: { organization: true },
     orderBy: [{ priority: "desc" }, { createdAt: "desc" }]
   });
@@ -49,7 +49,7 @@ export default async function SolicitudesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {solicitudes.map((s: any) => (
+                {solicitudes.map((s) => (
                   <TableRow key={s.id}>
                     <TableCell>{s.description}<div className="text-xs text-texto/70">{s.location} · {s.quantity} unidades</div></TableCell>
                     <TableCell><Badge tone={s.priority === "ALTA" ? "alerta" : s.priority === "MEDIA" ? "info" : "neutro"}>{s.priority}</Badge></TableCell>
@@ -70,7 +70,7 @@ export default async function SolicitudesPage() {
                         </Select>
                         <Button size="sm" variant="outline">Estado</Button>
                       </form>
-                      {user.role === ROLES.ADMIN ? (
+                      {user.role === Role.ADMIN ? (
                         <form action={priorizarSolicitudAction} className="flex gap-2">
                           <input type="hidden" name="id" value={s.id} />
                           <Select name="priority" defaultValue={s.priority} className="h-9 w-36">

@@ -1,6 +1,6 @@
 "use server";
 
-import { DonationStatus, Priority, RequestStatus, Role, Urgency, ROLES } from "@/lib/domain";
+import { DonationStatus, Priority, RequestStatus, Role, Urgency } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { calcularPrioridad } from "@/lib/priority";
@@ -18,7 +18,7 @@ export async function loginAction(formData: FormData) {
   const user = await login(email, password);
   if (!user) return { error: "Credenciales inválidas." };
 
-  redirect("/panel");
+  redirect("/dashboard");
 }
 
 export async function logoutAction() {
@@ -27,14 +27,14 @@ export async function logoutAction() {
 }
 
 export async function crearDonacionAction(formData: FormData) {
-  const user = await requireRole([ROLES.DONANTE, ROLES.ADMIN]);
+  const user = await requireRole([Role.DONANTE, Role.ADMIN]);
   const resourceType = String(formData.get("resourceType") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const quantity = Number(formData.get("quantity") || 0);
   const notes = String(formData.get("notes") || "").trim();
 
   if (!resourceType || !description || quantity <= 0) {
-    return;
+    return { error: "Completa los campos obligatorios y usa cantidad válida." };
   }
 
   const donation = await prisma.donation.create({
@@ -50,20 +50,20 @@ export async function crearDonacionAction(formData: FormData) {
   });
 
   revalidatePath("/donaciones");
-  revalidatePath("/panel");
-  return;
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 export async function actualizarDonacionAction(formData: FormData) {
-  const user = await requireRole([ROLES.DONANTE, ROLES.ADMIN]);
+  const user = await requireRole([Role.DONANTE, Role.ADMIN]);
   const id = Number(formData.get("id"));
   const description = String(formData.get("description") || "").trim();
   const quantity = Number(formData.get("quantity") || 0);
   const status = String(formData.get("status") || "DISPONIBLE") as DonationStatus;
 
   const donation = await prisma.donation.findUnique({ where: { id } });
-  if (!donation) return;
-  if (user.role !== ROLES.ADMIN && donation.donorId !== user.id) return;
+  if (!donation) return { error: "Donación no encontrada." };
+  if (user.role !== Role.ADMIN && donation.donorId !== user.id) return { error: "Sin permisos." };
 
   await prisma.donation.update({ where: { id }, data: { description, quantity, status } });
   await prisma.activityLog.create({
@@ -75,19 +75,19 @@ export async function actualizarDonacionAction(formData: FormData) {
   });
 
   revalidatePath("/donaciones");
-  revalidatePath("/panel");
-  return;
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 export async function crearSolicitudAction(formData: FormData) {
-  const user = await requireRole([ROLES.ORGANIZACION, ROLES.ADMIN]);
+  const user = await requireRole([Role.ORGANIZACION, Role.ADMIN]);
   const description = String(formData.get("description") || "").trim();
   const quantity = Number(formData.get("quantity") || 0);
   const urgency = String(formData.get("urgency") || "BAJA") as Urgency;
   const location = String(formData.get("location") || "").trim();
 
   if (!description || quantity <= 0 || !location) {
-    return;
+    return { error: "Completa los campos obligatorios." };
   }
 
   const priority = calcularPrioridad(urgency, quantity);
@@ -104,12 +104,12 @@ export async function crearSolicitudAction(formData: FormData) {
   });
 
   revalidatePath("/solicitudes");
-  revalidatePath("/panel");
-  return;
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 export async function actualizarSolicitudAction(formData: FormData) {
-  const user = await requireRole([ROLES.ORGANIZACION, ROLES.ADMIN]);
+  const user = await requireRole([Role.ORGANIZACION, Role.ADMIN]);
   const id = Number(formData.get("id"));
   const description = String(formData.get("description") || "").trim();
   const quantity = Number(formData.get("quantity") || 0);
@@ -117,8 +117,8 @@ export async function actualizarSolicitudAction(formData: FormData) {
   const status = String(formData.get("status") || "PENDIENTE") as RequestStatus;
 
   const request = await prisma.request.findUnique({ where: { id } });
-  if (!request) return;
-  if (user.role !== ROLES.ADMIN && request.organizationId !== user.id) return;
+  if (!request) return { error: "Solicitud no encontrada." };
+  if (user.role !== Role.ADMIN && request.organizationId !== user.id) return { error: "Sin permisos." };
 
   const priority = calcularPrioridad(urgency, quantity);
   await prisma.request.update({
@@ -135,12 +135,12 @@ export async function actualizarSolicitudAction(formData: FormData) {
   });
 
   revalidatePath("/solicitudes");
-  revalidatePath("/panel");
-  return;
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 export async function priorizarSolicitudAction(formData: FormData) {
-  const user = await requireRole([ROLES.ADMIN]);
+  const user = await requireRole([Role.ADMIN]);
   const id = Number(formData.get("id"));
   const priority = String(formData.get("priority")) as Priority;
 
@@ -161,11 +161,11 @@ export async function priorizarSolicitudAction(formData: FormData) {
   });
 
   revalidatePath("/solicitudes");
-  revalidatePath("/panel");
+  revalidatePath("/dashboard");
 }
 
 export async function crearAsignacionAction(formData: FormData) {
-  const user = await requireRole([ROLES.ADMIN]);
+  const user = await requireRole([Role.ADMIN]);
   const donationId = Number(formData.get("donationId"));
   const requestId = Number(formData.get("requestId"));
   const notes = String(formData.get("notes") || "");
@@ -173,8 +173,8 @@ export async function crearAsignacionAction(formData: FormData) {
   const donation = await prisma.donation.findUnique({ where: { id: donationId } });
   const request = await prisma.request.findUnique({ where: { id: requestId } });
 
-  if (!donation || !request) return;
-  if (donation.status !== "DISPONIBLE") return;
+  if (!donation || !request) return { error: "Registros inválidos." };
+  if (donation.status !== "DISPONIBLE") return { error: "La donación no está disponible." };
 
   // Al asignar, sincronizamos estados para mantener trazabilidad.
   await prisma.$transaction([
@@ -191,17 +191,17 @@ export async function crearAsignacionAction(formData: FormData) {
   ]);
 
   revalidatePath("/asignaciones");
-  revalidatePath("/panel");
+  revalidatePath("/dashboard");
   revalidatePath("/donaciones");
   revalidatePath("/solicitudes");
-  return;
+  return { ok: true };
 }
 
 export async function actualizarPerfilAction(formData: FormData) {
   const user = await requireUser();
   const name = String(formData.get("name") || "").trim();
 
-  if (name.length < 3) return;
+  if (name.length < 3) return { error: "El nombre debe tener al menos 3 caracteres." };
 
   await prisma.user.update({ where: { id: user.id }, data: { name } });
   await prisma.activityLog.create({
@@ -213,5 +213,5 @@ export async function actualizarPerfilAction(formData: FormData) {
   });
 
   revalidatePath("/perfil");
-  return;
+  return { ok: true };
 }

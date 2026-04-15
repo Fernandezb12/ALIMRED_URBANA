@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { ROLES } from "../lib/domain";
+import { PrismaClient, Role } from "@prisma/client";
 import { calcularPrioridad } from "../lib/priority";
 
 const prisma = new PrismaClient();
@@ -14,7 +13,6 @@ async function main() {
   await prisma.request.deleteMany();
   await prisma.organizationProfile.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.mapPoint.deleteMany();
 
   const [adminPass, donantePass, orgPass] = await Promise.all([
     bcrypt.hash("Admin123*", 10),
@@ -23,15 +21,15 @@ async function main() {
   ]);
 
   const admin = await prisma.user.create({
-    data: { name: "Admin AlimRed", email: "admin@alimred.local", role: ROLES.ADMIN, passwordHash: adminPass }
+    data: { name: "Admin AlimRed", email: "admin@alimred.local", role: Role.ADMIN, passwordHash: adminPass }
   });
 
   const donante = await prisma.user.create({
-    data: { name: "Donante Demo", email: "donante@alimred.local", role: ROLES.DONANTE, passwordHash: donantePass }
+    data: { name: "Donante Demo", email: "donante@alimred.local", role: Role.DONANTE, passwordHash: donantePass }
   });
 
   const organizacion = await prisma.user.create({
-    data: { name: "Comedor Esperanza", email: "organizacion@alimred.local", role: ROLES.ORGANIZACION, passwordHash: orgPass }
+    data: { name: "Comedor Esperanza", email: "organizacion@alimred.local", role: Role.ORGANIZACION, passwordHash: orgPass }
   });
 
   await prisma.organizationProfile.create({
@@ -85,68 +83,7 @@ async function main() {
     ]
   });
 
-
-
-  await prisma.mapPoint.createMany({
-    data: [
-      {
-        name: "Centro de Acopio San Pedro",
-        type: "DONACION",
-        address: "Cra. 7 #12-40, Neiva",
-        status: "Disponible",
-        description: "Punto con alimentos no perecederos listos para clasificación.",
-        lat: 2.9386,
-        lng: -75.2802
-      },
-      {
-        name: "Comedor Comunitario Altico",
-        type: "ORGANIZACION",
-        address: "Calle 8 #2-15, barrio Altico",
-        status: "Operativo",
-        description: "Atiende población infantil y adultos mayores.",
-        lat: 2.9295,
-        lng: -75.2927
-      },
-      {
-        name: "Solicitud activa: Barrio Santa Rosa",
-        type: "SOLICITUD",
-        address: "Parque principal Santa Rosa",
-        status: "Priorizada",
-        description: "45 familias en riesgo alimentario requieren kits semanales.",
-        lat: 2.9442,
-        lng: -75.2673
-      },
-      {
-        name: "Punto de entrega Sur",
-        type: "ENTREGA",
-        address: "Av. Tenerife con Calle 21",
-        status: "En ruta",
-        description: "Nodo de consolidación para entregas de última milla.",
-        lat: 2.9201,
-        lng: -75.2864
-      },
-      {
-        name: "Red de apoyo Universidad",
-        type: "ORGANIZACION",
-        address: "Sector universidades, Neiva",
-        status: "Voluntariado activo",
-        description: "Equipo universitario de logística y clasificación.",
-        lat: 2.9514,
-        lng: -75.3011
-      },
-      {
-        name: "Donación urgente zona industrial",
-        type: "DONACION",
-        address: "Zona Industrial Oriente",
-        status: "Pendiente de asignación",
-        description: "Lote de alimentos secos y proteína enlatada.",
-        lat: 2.9268,
-        lng: -75.2509
-      }
-    ]
-  });
-
-  console.log("✅ Seed completado: cuentas demo, flujo principal y mapa solidario listos.");
+  console.log("✅ Seed completado: cuentas demo y flujo principal listos para presentación.");
   console.log("   admin@alimred.local / Admin123*");
   console.log("   donante@alimred.local / Donante123*");
   console.log("   organizacion@alimred.local / Organizacion123*");

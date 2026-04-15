@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import { type Role, ROLES } from "@/lib/domain";
+import { Role, type User } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 const SESSION_COOKIE = "alimred_sesion";
@@ -69,17 +69,17 @@ export async function requireUser() {
 
 export async function requireRole(roles: Role[]) {
   const user = await requireUser();
-  if (!roles.includes(user.role)) redirect("/panel");
+  if (!roles.includes(user.role)) redirect("/dashboard");
   return user;
 }
 
 export function roleLabel(role: Role) {
   const mapa: Record<Role, string> = {
-    [ROLES.ADMIN]: "Administrador",
-    [ROLES.DONANTE]: "Donante",
-    [ROLES.ORGANIZACION]: "Organización"
+    ADMIN: "Administrador",
+    DONANTE: "Donante",
+    ORGANIZACION: "Organización"
   };
   return mapa[role];
 }
 
-export type SessionUser = { id: number; name: string; email: string; role: Role };
+export type SessionUser = Pick<User, "id" | "name" | "email" | "role">;

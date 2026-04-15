@@ -1,4 +1,4 @@
-import { ROLES } from "@/lib/domain";
+import { Role } from "@prisma/client";
 import { crearAsignacionAction } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { fechaBonita } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 
 export default async function AsignacionesPage() {
-  await requireRole([ROLES.ADMIN]);
+  await requireRole([Role.ADMIN]);
 
   const [donaciones, solicitudes, asignaciones] = await Promise.all([
     prisma.donation.findMany({ where: { status: "DISPONIBLE" }, orderBy: { createdAt: "asc" } }),
@@ -26,11 +26,11 @@ export default async function AsignacionesPage() {
           <form action={crearAsignacionAction} className="grid gap-3 md:grid-cols-2">
             <Select name="donationId" required>
               <option value="">Selecciona donación disponible</option>
-              {donaciones.map((d: any) => <option key={d.id} value={d.id}>#{d.id} · {d.resourceType} ({d.quantity})</option>)}
+              {donaciones.map((d) => <option key={d.id} value={d.id}>#{d.id} · {d.resourceType} ({d.quantity})</option>)}
             </Select>
             <Select name="requestId" required>
               <option value="">Selecciona solicitud pendiente</option>
-              {solicitudes.map((s: any) => <option key={s.id} value={s.id}>#{s.id} · {s.location} · {s.priority}</option>)}
+              {solicitudes.map((s) => <option key={s.id} value={s.id}>#{s.id} · {s.location} · {s.priority}</option>)}
             </Select>
             <Textarea name="notes" className="md:col-span-2" placeholder="Notas logísticas de entrega" />
             <div className="md:col-span-2"><Button type="submit">Crear asignación</Button></div>
@@ -41,7 +41,7 @@ export default async function AsignacionesPage() {
       <Card>
         <CardHeader><CardTitle>Asignaciones recientes</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          {asignaciones.length === 0 ? <p className="text-sm text-texto/70">No hay asignaciones todavía.</p> : asignaciones.map((a: any) => (
+          {asignaciones.length === 0 ? <p className="text-sm text-texto/70">No hay asignaciones todavía.</p> : asignaciones.map((a) => (
             <div key={a.id} className="rounded-xl border p-3 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone="vino">Asignación #{a.id}</Badge>

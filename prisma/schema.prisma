@@ -38,13 +38,6 @@ enum Urgency {
   BAJA
 }
 
-enum MapPointType {
-  DONACION
-  SOLICITUD
-  ENTREGA
-  ORGANIZACION
-}
-
 model User {
   id               Int                @id @default(autoincrement())
   name             String
@@ -127,18 +120,4 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-
-model MapPoint {
-  id          Int          @id @default(autoincrement())
-  name        String
-  type        MapPointType
-  address     String
-  status      String
-  description String
-  lat         Float
-  lng         Float
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
 }
